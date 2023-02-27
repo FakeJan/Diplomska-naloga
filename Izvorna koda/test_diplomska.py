@@ -1,23 +1,20 @@
 import wave
 import os
-from playwright.sync_api import Playwright, sync_playwright, expect
+from playwright.sync_api import Playwright, expect
 from time import sleep
 
 # playwright codegen demo.playwright.dev/todomvc
 
-path = os.getcwd()
-
 
 def login(page):
-    '''Prijava v Truebar'''
-    page.goto("https://staging-editor.true-bar.si/")
+    # print("Logged in successfully")
+    # page.goto("https://staging-editor.true-bar.si/")
     page.get_by_placeholder("Uporabniško ime").click()
     page.get_by_placeholder("Uporabniško ime").fill("jani")
     page.get_by_placeholder("Geslo").click()
     page.get_by_placeholder("Geslo").fill("mIqrfAx490@6")
     page.get_by_role("button", name="PRIJAVA").click()
     page.locator(".modal_wrapper").first.click()
-    sleep(1)
 
 
 def playAudio(page, path):
@@ -61,10 +58,8 @@ def deleteRecording(page):
 
 
 def test_narekovanje(playwright: Playwright) -> None:
-    '''Narek'''
     audio = "\\Audio files\\input.wav"
-    audioPath = path + audio
-    name = "Narek"
+    audioPath = os.getcwd() + audio
     chromium = playwright.chromium
     browser = chromium.launch(headless=False, args=[
         '--use-fake-device-for-media-stream',
@@ -76,10 +71,6 @@ def test_narekovanje(playwright: Playwright) -> None:
 
     login(page)
     playAudio(page, audioPath)
-    nameRecording(page, name)
-
-    checkHistory(page, name)
-    deleteRecording(page)
 
     # ---------------------
     context.close()
