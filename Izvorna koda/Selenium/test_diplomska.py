@@ -53,10 +53,10 @@ def playAudio(driver, path):
 
 # main function
 def test_audio():
-    audio = "\\Audio files\\input.wav"
-    audioPath = os.getcwd() + audio
-    chrome = "\\Webdriver\\chromedriver.exe"
-    driverPath = os.getcwd() + chrome
+    audio = "input.wav"
+    audioPath = os.path.join(os.getcwd(), "Audio-Files", audio)
+    chrome = "chromedriver.exe"
+    driverPath = os.path.join(os.getcwd(), "Webdriver", chrome)
 
     opt = Options()
     opt.add_argument("--use-fake-device-for-media-stream")
