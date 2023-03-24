@@ -9,17 +9,16 @@ from selenium.webdriver.common.by import By
 
 # login function
 def login(driver, url):
-    driver.get(url)
-    assert driver.title == "True-bark"
+    '''Prijavi se v aplikacijo'''
     sleep(1)
-    # input name
+    # input username
     driver.find_element(
-        By.XPATH, "/html/body/div/div/main/div/form/div[1]/div[2]/div[2]/div[1]/div/input").send_keys("jani")
+        By.XPATH, "/html/body/div/div/main/div/form/div[1]/div[2]/div[2]/div[1]/div/input").send_keys("username")
     sleep(1)
 
     # input password
     driver.find_element(
-        By.XPATH, "/html/body/div/div/main/div/form/div[1]/div[2]/div[2]/div[2]/div/input").send_keys("mIqrfAx490@6")
+        By.XPATH, "/html/body/div/div/main/div/form/div[1]/div[2]/div[2]/div[2]/div/input").send_keys("password")
     sleep(1)
 
     # press login
@@ -35,7 +34,8 @@ def login(driver, url):
 
 # play audio function
 def playAudio(driver, path):
-    # press v zivo
+    '''Predvaja zvocni posnetek preko mikrofona'''
+    # press start
     driver.find_element(
         By.XPATH, "/html/body/div[1]/div/main/div/div[1]/div/div/button[1]").click()
 
@@ -68,7 +68,7 @@ def test_audio():
 
     driver = webdriver.Chrome(service=driver_service, options=opt)
 
-    aplikacijaUrl = "https://staging-editor.true-bar.si/"
+    aplikacijaUrl = "https://speech-to-text.si"
 
     login(driver, aplikacijaUrl)
     playAudio(driver, audioPath)

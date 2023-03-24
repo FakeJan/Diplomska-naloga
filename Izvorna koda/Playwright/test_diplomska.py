@@ -3,22 +3,21 @@ import os
 from playwright.sync_api import Playwright, expect
 from time import sleep
 
-# playwright codegen demo.playwright.dev/todomvc
-
 
 def login(page):
-    # print("Logged in successfully")
-    # page.goto("https://staging-editor.true-bar.si/")
+    '''Prijavi se v aplikacijo'''
+    page.goto("https://speech-to-text.si")
     page.get_by_placeholder("Uporabniško ime").click()
-    page.get_by_placeholder("Uporabniško ime").fill("jani")
+    page.get_by_placeholder("Uporabniško ime").fill("username")
     page.get_by_placeholder("Geslo").click()
-    page.get_by_placeholder("Geslo").fill("mIqrfAx490@6")
+    page.get_by_placeholder("Geslo").fill("password")
     page.get_by_role("button", name="PRIJAVA").click()
     page.locator(".modal_wrapper").first.click()
 
 
 def playAudio(page, path):
-    '''Predvaja zvonci posnetek preko mikrofona'''
+    '''Predvaja zvocni posnetek preko mikrofona'''
+    # press start
     page.get_by_role("button", name="V ŽIVO").click()
 
     with wave.open(path) as mywav:
@@ -29,6 +28,20 @@ def playAudio(page, path):
 
     page.get_by_role("button").first.click()
     sleep(1)
+
+
+def addRecording(page, path):
+    '''Dosnemavanje'''
+    page.locator("#footer").get_by_role("button").first.click()
+    sleep(1)
+    with wave.open(path) as mywav:
+        frames = mywav.getnframes()
+        rate = mywav.getframerate()
+        duration = frames / float(rate)
+        sleep(duration)
+
+    # stop recording
+    page.locator("#footer").get_by_role("button").first.click()
 
 
 def nameRecording(page, name):
@@ -58,8 +71,8 @@ def deleteRecording(page):
 
 
 def test_narekovanje(playwright: Playwright) -> None:
-    audio = "\\Audio files\\input.wav"
-    audioPath = os.getcwd() + audio
+    audio = "input.wav"
+    audioPath = os.path.join(os.getcwd(), "Audio-Files", audio)
     chromium = playwright.chromium
     browser = chromium.launch(headless=False, args=[
         '--use-fake-device-for-media-stream',
@@ -71,67 +84,31 @@ def test_narekovanje(playwright: Playwright) -> None:
 
     login(page)
     playAudio(page, audioPath)
-
     # ---------------------
     context.close()
     browser.close()
 
 
-# def test_dosnemavanje(playwright: Playwright) -> None:
-#     '''Narek dosnemavanje'''
-#     chromium = playwright.chromium
-#     browser = chromium.launch(headless=False, args=[
-#         '--use-fake-device-for-media-stream',
-#         '--use-fake-ui-for-media-stream',
-#         '--use-file-for-fake-audio-capture={0}'.format(path)])
-#     context = browser.new_context()
-#     context.grant_permissions(permissions=['microphone'])
-#     page = context.new_page()
+def test_dosnemavanje(playwright: Playwright) -> None:
+    '''Narek dosnemavanje'''
+    audio = "input.wav"
+    audioPath = os.path.join(os.getcwd(), "Audio-Files", audio)
+    name = "Narek dosnemavanje"
+    chromium = playwright.chromium
+    browser = chromium.launch(headless=False, args=[
+        '--use-fake-device-for-media-stream',
+        '--use-fake-ui-for-media-stream',
+        '--use-file-for-fake-audio-capture={0}'.format(audioPath)])
+    context = browser.new_context()
+    context.grant_permissions(permissions=['microphone'])
+    page = context.new_page()
 
-#     page.goto("https://staging-editor.true-bar.si/")
-#     page.get_by_placeholder("Uporabniško ime").click()
-#     page.get_by_placeholder("Uporabniško ime").fill("jani")
-#     page.get_by_placeholder("Geslo").click()
-#     page.get_by_placeholder("Geslo").fill("mIqrfAx490@6")
-#     page.get_by_role("button", name="PRIJAVA").click()
-#     page.locator(".modal_wrapper").first.click()
-#     page.get_by_role("button", name="V ŽIVO").click()
-#     sleep(1)
-#     with wave.open(path) as mywav:
-#         frames = mywav.getnframes()
-#         rate = mywav.getframerate()
-#         duration = frames / float(rate)
-#         sleep(duration)
-
-#     # stop speech button
-#     page.get_by_role("button").first.click()
-
-#     # dosnemavanje
-#     page.locator("#footer").get_by_role("button").first.click()
-#     sleep(1)
-#     with wave.open(path) as mywav:
-#         frames = mywav.getnframes()
-#         rate = mywav.getframerate()
-#         duration = frames / float(rate)
-#         sleep(duration)
-
-#     # stop recording
-#     page.locator("#footer").get_by_role("button").first.click()
-
-#     # save
-#     sleep(5)
-#     # name the recording
-#     page.locator("input").click()
-#     page.locator("input").fill("Narek dosnemavanje")
-#     sleep(1)
-#     page.locator("input").press("Enter")
-
-#     page.get_by_role("button", name="KONČAJ").click()
-
-#     page.get_by_role("button", name="ZGODOVINA").click()
-#     locator = page.get_by_text("Narek dosnemavanje").first
-#     expect(locator).to_have_text("Narek dosnemavanje")
-
-#     # ---------------------
-#     context.close()
-#     browser.close()
+    login(page)
+    playAudio(page, audioPath)
+    addRecording(page, audioPath)
+    nameRecording(page, name)
+    checkHistory(page, name)
+    deleteRecording(page)
+    # ---------------------
+    context.close()
+    browser.close()
