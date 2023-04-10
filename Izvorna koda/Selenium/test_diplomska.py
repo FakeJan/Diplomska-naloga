@@ -10,6 +10,7 @@ from selenium.webdriver.common.by import By
 # login function
 def login(driver, url):
     '''Prijavi se v aplikacijo'''
+    driver.get(url)
     sleep(1)
     # input username
     driver.find_element(
